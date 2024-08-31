@@ -54,4 +54,27 @@ app.post('/name', async (c) => {
     } 
 });
 
+app.post("/signin",async(c)=>{
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env?.DATABASE_URL,
+    }).$extends(withAccelerate());
+
+    const body = await c.req.json();
+   
+        const user = await prisma.createAccount.findUnique({
+            where:{
+                email:body.email
+            }
+        })
+        if (!user) {
+            c.status(403);
+            return c.json({ error: "user not found" });
+        }
+    
+        
+        const jwt = await sign({id:user.id}, c.env.JWT_SECRET);
+        return c.json({jwt,message:"Sign in Successfull!"});
+   
+})
+
 export default app;

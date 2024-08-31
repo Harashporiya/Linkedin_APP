@@ -6,8 +6,9 @@ import { API_URL } from './BackendApi'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation , NavigationProp} from '@react-navigation/native'
 import { routerType } from './Navigation'
+import { ModalTransition } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionPresets'
 
-const Signup = () => {
+const Signin = () => {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
@@ -95,12 +96,14 @@ const Signup = () => {
               />
             </TouchableOpacity>
           </View>
+        
           {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
+          <Text style={{fontSize:20,marginLeft:10,fontWeight:"bold",color:"#0b66c3"}}>Forgot password?</Text>
         </View>
         
         <View>
-          <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-            <Text style={styles.btn}>Agree & Join</Text>
+          <TouchableOpacity onPress={handleSubmit} style={[styles.button]}>
+            <Text style={styles.btn}>Sign in</Text>
           </TouchableOpacity>
         </View>
         
@@ -114,7 +117,7 @@ const Signup = () => {
         
         <View style={styles.signInPrompt}>
           <Text style={styles.signInText}>
-            Already on Linkedin? <Text style={styles.signInLink}>Sign in</Text>
+          New to LinkedIn? <Text style={styles.signInLink}>Join now</Text>
           </Text>
         </View>
       </View>
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0b66c3",
     padding: 8,
     borderRadius: 20,
-    marginTop: 8,
+    marginTop: 10,
   },
   btn: {
     color: "white",
@@ -207,4 +210,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Signup;
+export default Signin;
