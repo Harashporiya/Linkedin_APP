@@ -25,7 +25,7 @@ app.post('/create', async (c) => {
             }
         });
           const token = await sign({user:user.id},c.env.JWT_SECRET)
-        return c.json({ user,token, message: "Account Created" });
+        return c.json({ id:user.id,token, message: "Account Created" });
 
     } catch (error) {
         c.status(403);

@@ -3,28 +3,58 @@ import React, { useState } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import axios from 'axios'
 import { API_URL } from './BackendApi'
-
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation , NavigationProp} from '@react-navigation/native'
+import { routerType } from './Navigation'
 
 const Signup = () => {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  
+  const navigation = useNavigation<NavigationProp<routerType>>();
 
-  const handelSubmit = async () => {
-    if(!email.trim()||!password.trim()){
-      
+  const handleSubmit = async () => {
+    let valid = true;
+  
+    setEmailError(null);
+    setPasswordError(null);
+
+    if (!email.trim()) {
+      setEmailError('Please enter your email address.');
+      setTimeout(()=>{
+        setEmailError(null)
+      },3000)
+      valid = false;
     }
-    try {
-      const response = await axios.post(`${API_URL}/user/create`, {
-        email,
-        password,
-      })
-      setEmail('')
-      setPassword('');
-      console.log(response.data);
-      
-    } catch (error) {
-      console.log("error", error);
+
+   
+    if (!password.trim()) {
+      setPasswordError('Please enter your password.');
+      setTimeout(() => {
+        setPasswordError(null)
+      }, 3000);
+      valid = false;
+    }
+
+    if (valid) {
+      try {
+        const response = await axios.post(`${API_URL}/user/create`, {
+          email,
+          password,
+        });
+        const id = response.data.id;
+        await AsyncStorage.setItem("userId", id);
+        setEmail('');
+        setPassword('');
+        setTimeout(() => {
+          navigation.navigate('Name');
+        }, 5000);
+      } catch (error) {
+        console.log("error", error);
+      }
     }
   }
 
@@ -44,7 +74,9 @@ const Signup = () => {
             value={email}
             onChangeText={(text) => setEmail(text)}
           />
+          {emailError && <Text style={styles.errorText}>{emailError}</Text>}
         </View>
+        
         <View>
           <Text style={styles.text}>Password (6+ characters)</Text>
           <View style={styles.passwordContainer}>
@@ -63,18 +95,23 @@ const Signup = () => {
               />
             </TouchableOpacity>
           </View>
-          <View>
-            <TouchableOpacity onPress={handelSubmit} style={styles.button}>
-              <Text style={styles.btn}>Agree & Join</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.hr} />
+          {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
         </View>
+        
+        <View>
+          <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+            <Text style={styles.btn}>Agree & Join</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.hr} />
+        
         <View>
           <TouchableOpacity style={styles.googleButton}>
             <Text style={styles.googleText}>Continue with Google</Text>
           </TouchableOpacity>
         </View>
+        
         <View style={styles.signInPrompt}>
           <Text style={styles.signInText}>
             Already on Linkedin? <Text style={styles.signInLink}>Sign in</Text>
@@ -162,7 +199,12 @@ const styles = StyleSheet.create({
   signInLink: {
     fontWeight: "bold",
     color: "#0b66c3"
-  }
-})
+  },
+  errorText: {
+    color: 'red',
+    marginLeft: 10,
+    marginTop: -5,
+  },
+});
 
-export default Signup
+export default Signup;
